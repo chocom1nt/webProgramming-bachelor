@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: courses_db
+    environment:
+      POSTGRES_DB: courses_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - courses_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: courses_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./sessions:/tmp
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - courses_network
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: courses_db
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+    command: >
+      sh -c "
+      apache2-foreground &
+      sleep 5 &&
+      chmod -R 777 /tmp &&
+      tail -f /dev/null
+      "
+
+volumes:
+  postgres_data:
+
+networks:
+  courses_network:
+    driver: bridge
