@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: courses_db
+    environment:
+      POSTGRES_DB: courses_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - courses_network
+
+  web:
+    build: .
+    container_name: courses_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - courses_network
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: courses_db
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+
+volumes:
+  postgres_data:
+
+networks:
+  courses_network:
+    driver: bridge

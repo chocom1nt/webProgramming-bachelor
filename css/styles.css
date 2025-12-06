@@ -1,0 +1,80 @@
+/* Стили для загрузки изображений */
+.image-upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.upload-options {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.upload-options .option {
+    display: flex;
+    align-items: center;
+}
+
+.upload-options input[type="radio"] {
+    margin-right: 5px;
+}
+
+.source-section {
+    margin-bottom: 15px;
+}
+
+.drag-drop-area {
+    border: 2px dashed #007bff;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.drag-drop-area:hover {
+    background-color: #e9ecef;
+}
+
+.drag-drop-area p {
+    margin: 5px 0;
+    color: #6c757d;
+}
+
+.image-preview {
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Стили для телефонной маски */
+input:invalid {
+    border-color: #dc3545;
+}
+
+input:valid {
+    border-color: #28a745;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .upload-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .drag-drop-area {
+        padding: 20px;
+    }
+}
