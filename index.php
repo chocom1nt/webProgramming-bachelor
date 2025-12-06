@@ -2,48 +2,7 @@
 session_start();
 ob_start();
 
-// Загружаем конфигурацию
-require_once 'config/constants.php';
-
-// Проверка аутентификации
-function checkAuth() {
-    return isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
-}
-
-// Обработка входа
-if (isset($_POST['login'])) {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if ($username === DEFAULT_USERNAME && $password === DEFAULT_PASSWORD) {
-        $_SESSION['authenticated'] = true;
-        $_SESSION['username'] = $username;
-        header('Location: ' . BASE_PATH);
-        exit;
-    } else {
-        $login_error = 'Неверный логин или пароль';
-    }
-}
-
-// Обработка выхода
-if (isset($_GET['logout'])) {
-    session_destroy();
-    header('Location: ' . BASE_PATH);
-    exit;
-}
-
-// Если не авторизован, показываем форму входа
-if (!checkAuth()) {
-    // Устанавливаем заголовок для предотвращения кэширования
-    header("Cache-Control: no-cache, must-revalidate");
-    header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-    
-    // Подключаем форму входа
-    include 'templates/login.html';
-    exit;
-}
-
-// Автозагрузка классов
+// Автозагрузка контроллеров
 spl_autoload_register(function ($class) {
     $paths = [
         'controllers/' . $class . '.php',
@@ -58,19 +17,55 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Загружаем Database
+// Загружаем конфигурацию
+if (file_exists('config/constants.php')) {
+    require_once 'config/constants.php';
+} else {
+    // Устанавливаем константы по умолчанию
+    define('BASE_URL', 'http://localhost:8080');
+    define('IMAGE_NOT_FOUND', '/include/img/ImageNotFound.png');
+    define('UPLOAD_DIR', '/uploads/');
+}
+
+// Загружаем Database вручную
 require_once 'core/Database.php';
 
-$table = $_GET['table'] ?? 'courses';
+// Получаем параметры
+$table = $_GET['table'] ?? '';
 $action = $_GET['action'] ?? 'list';
 $id = $_GET['id'] ?? null;
 
 $current_table = $table;
 
-// Подключаем header для авторизованных пользователей
-include 'templates/header.html';
+// Подключаем header
+if (file_exists('templates/header.php')) {
+    include 'templates/header.php';
+} else {
+    // Если header.php не существует, показываем минимальный HTML
+    echo '<!DOCTYPE html><html><head><title>Ошибка</title>';
+    echo '<link rel="stylesheet" href="/css/bootstrap.min.css">';
+    echo '<link rel="stylesheet" href="/css/styles.css">';
+    echo '</head><body>';
+    echo '<div class="container">';
+}
 
-// Роутинг для авторизованных пользователей
+// Роутинг - если table пустой, показываем dashboard
+if (empty($table)) {
+    // Показываем dashboard
+    if (file_exists('views/dashboard.php')) {
+        include 'views/dashboard.php';
+    } else {
+        echo '<div class="alert alert-warning">Файл dashboard.php не найден</div>';
+        echo '<h1>Добро пожаловать в систему управления курсами!</h1>';
+        echo '<p>Выберите раздел в меню навигации.</p>';
+    }
+    if (file_exists('templates/footer.html')) {
+        include 'templates/footer.html';
+    }
+    exit;
+}
+
+// Если указана таблица, обрабатываем контроллер
 switch ($table) {
     case 'courses':
         $controller = new CourseController();
@@ -88,7 +83,7 @@ switch ($table) {
         $controller = new PaymentController();
         break;
     default:
-        // Показываем dashboard
+        // Если неизвестная таблица, показываем dashboard
         include 'views/dashboard.php';
         include 'templates/footer.html';
         exit;
@@ -110,5 +105,9 @@ switch ($action) {
 }
 
 // Подключаем footer
-include 'templates/footer.html';
+if (file_exists('templates/footer.html')) {
+    include 'templates/footer.html';
+} else {
+    echo '</div></body></html>';
+}
 ?>

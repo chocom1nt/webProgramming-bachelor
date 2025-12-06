@@ -7,7 +7,7 @@
         <h4><?= $title ?></h4>
     </div>
     <div class="card-body">
-        <form method="POST" id="studentForm" novalidate>
+        <form method="POST" id="studentForm">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -43,12 +43,12 @@
                         <label>Телефон</label>
                         <input type="tel" class="form-control" name="phone" 
                                id="phone"
-                               placeholder="+7 (999) 999-99-99"
+                               placeholder="+7 (XXX) XXX-XX-XX"
                                value="<?= isset($student['phone']) ? htmlspecialchars($student['phone']) : '' ?>"
                                data-toggle="tooltip" 
-                               title="Формат: +7 (999) 999-99-99 или 89999999999">
-                        <div class="invalid-feedback">Неверный формат телефона. Используйте: +7 (999) 999-99-99</div>
-                        <small class="form-text text-muted">Формат: +7 (999) 999-99-99 или 89999999999</small>
+                               title="Формат: +7 (XXX) XXX-XX-XX">
+                        <div class="invalid-feedback">Неверный формат телефона. Используйте: +7 (XXX) XXX-XX-XX</div>
+                        <small class="form-text text-muted">Формат: +7 (XXX) XXX-XX-XX</small>
                     </div>
                 </div>
             </div>
@@ -58,9 +58,6 @@
                     <?= isset($student) ? 'Сохранить изменения' : 'Создать студента' ?>
                 </button>
                 <a href="/?table=students" class="btn btn-secondary">Отмена</a>
-                <button type="button" class="btn btn-outline-info" id="clearPhoneBtn">
-                    Очистить телефон
-                </button>
             </div>
         </form>
     </div>

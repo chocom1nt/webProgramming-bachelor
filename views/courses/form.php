@@ -3,7 +3,7 @@
         <h4><?= $title ?></h4>
     </div>
     <div class="card-body">
-        <form method="POST" enctype="multipart/form-data" id="courseForm">
+        <form method="POST" id="courseForm">
             <div class="form-group">
                 <label>Название курса *</label>
                 <input type="text" class="form-control" name="title" 
@@ -12,72 +12,38 @@
             
             <div class="form-group">
                 <label>Изображение курса</label>
-                <div class="image-upload-area" id="imageUploadArea">
-                    <div class="upload-options">
-                        <div class="option">
-                            <input type="radio" name="image_source" id="url_source" value="url" checked>
-                            <label for="url_source">Ввести URL</label>
-                        </div>
-                        <div class="option">
-                            <input type="radio" name="image_source" id="file_source" value="file">
-                            <label for="file_source">Загрузить файл</label>
-                        </div>
-                        <div class="option">
-                            <input type="radio" name="image_source" id="drag_source" value="drag">
-                            <label for="drag_source">Drag & Drop</label>
-                        </div>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="image_url" 
+                           id="image_url" 
+                           value="<?= isset($course['image_url']) ? htmlspecialchars($course['image_url']) : '' ?>"
+                           placeholder="https://example.com/image.jpg">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" id="clearImageBtn"
+                                <?= !isset($course['image_url']) || empty($course['image_url']) ? 'style="display:none;"' : '' ?>>
+                            Удалить
+                        </button>
                     </div>
-                    
-                    <div id="urlSection" class="source-section">
-                        <input type="text" class="form-control" name="image_url" 
-                               id="image_url" 
-                               value="<?= isset($course['image_url']) ? htmlspecialchars($course['image_url']) : '' ?>"
-                               placeholder="https://example.com/image.jpg">
-                        <small class="form-text text-muted">Введите URL изображения или используйте загрузку файла</small>
-                    </div>
-                    
-                    <div id="fileSection" class="source-section" style="display: none;">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="image_file" 
-                                   name="image_file" accept="image/*" data-max-size="5242880">
-                            <label class="custom-file-label" for="image_file">Выберите файл (макс. 5MB)</label>
-                            <div id="fileSizeError" class="invalid-feedback" style="display: none;">
-                                Файл слишком большой. Максимальный размер: 5MB.
-                            </div>
-                        </div>
-                        <small class="form-text text-muted">Файл будет сохранен на сервере</small>
-                    </div>
-                    
-                    <div id="dragSection" class="source-section" style="display: none;">
-                        <div class="drag-drop-area" id="dragDropArea">
-                            <p>Перетащите изображение сюда</p>
-                            <p>или</p>
-                            <button type="button" class="btn btn-outline-primary" 
-                                    onclick="document.getElementById('dragFileInput').click()">
-                                Выберите файл
-                            </button>
-                            <input type="file" id="dragFileInput" style="display: none;" 
-                                   accept="image/*" data-max-size="5242880">
-                        </div>
-                        <small class="form-text text-muted">Максимальный размер файла: 5MB</small>
-                    </div>
-                    
-                    <div class="image-preview mt-3" id="imagePreview" 
-                         style="<?= isset($course['image_url']) && $course['image_url'] ? '' : 'display: none;' ?>">
-                        <img src="<?= isset($course['image_url']) ? htmlspecialchars($course['image_url']) : '' ?>" 
-                             alt="Предпросмотр" id="previewImage" 
-                             onerror="this.src='<?= IMAGE_NOT_FOUND ?>'">
-                    </div>
-                    
-                    <!-- Скрытое поле для хранения загруженного изображения в base64 -->
-                    <input type="hidden" name="base64_image" id="base64_image">
                 </div>
+                <small class="form-text text-muted">Введите URL изображения (JPG, PNG, GIF)</small>
                 
-                <div class="form-group mt-2">
-                    <label>Alt текст для изображения</label>
-                    <input type="text" class="form-control" name="image_alt" 
-                           value="<?= isset($course['image_alt']) ? htmlspecialchars($course['image_alt']) : '' ?>">
+                <!-- Предпросмотр -->
+                <div class="image-preview mt-3" id="imagePreview" 
+                     style="<?= isset($course['image_url']) && !empty($course['image_url']) ? '' : 'display: none;' ?>">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Предпросмотр:</strong>
+                    </div>
+                    <img src="<?= isset($course['image_url']) && !empty($course['image_url']) ? htmlspecialchars($course['image_url']) : IMAGE_NOT_FOUND ?>" 
+                         alt="Предпросмотр" id="previewImage" 
+                         style="max-width: 300px; max-height: 200px; object-fit: cover;"
+                         onerror="this.src='<?= IMAGE_NOT_FOUND ?>'">
                 </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Alt текст для изображения</label>
+                <input type="text" class="form-control" name="image_alt" 
+                       value="<?= isset($course['image_alt']) ? htmlspecialchars($course['image_alt']) : '' ?>"
+                       placeholder="Описание изображения">
             </div>
             
             <div class="form-group">

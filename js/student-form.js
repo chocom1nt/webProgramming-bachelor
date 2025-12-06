@@ -1,27 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInput = document.getElementById('phone');
-    const clearPhoneBtn = document.getElementById('clearPhoneBtn');
     const studentForm = document.getElementById('studentForm');
     
-    // Очистка телефона
-    if (clearPhoneBtn) {
-        clearPhoneBtn.addEventListener('click', function() {
-            if (phoneInput) {
-                phoneInput.value = '';
-                phoneInput.classList.remove('is-invalid');
-            }
-        });
-    }
-    
-    // Улучшенная маска для телефона
+    // Маска для телефона в формате +7 (XXX)-XXX-XX-XX
     if (phoneInput) {
-        // Форматирование телефона при вводе
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            // Если начинается с 7 или 8, оставляем как есть
+            // Если начинается с 7 или 8, убираем первую цифру
             if (value.startsWith('7') || value.startsWith('8')) {
-                value = value.substring(1); // Убираем первую цифру
+                value = value.substring(1);
             }
             
             // Ограничиваем 10 цифрами
@@ -29,19 +17,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 value = value.substring(0, 10);
             }
             
-            // Форматируем по мере ввода
-            let formatted = '+7 ';
+            // Форматируем в формат +7 (XXX)-XXX-XX-XX
+            let formatted = '';
             if (value.length > 0) {
-                formatted += '(' + value.substring(0, 3);
-            }
-            if (value.length >= 4) {
-                formatted += ') ' + value.substring(3, 6);
-            }
-            if (value.length >= 7) {
-                formatted += '-' + value.substring(6, 8);
-            }
-            if (value.length >= 9) {
-                formatted += '-' + value.substring(8, 10);
+                formatted = '+7 (';
+                formatted += value.substring(0, 3);
+                if (value.length > 3) {
+                    formatted += ')-' + value.substring(3, 6);
+                }
+                if (value.length > 6) {
+                    formatted += '-' + value.substring(6, 8);
+                }
+                if (value.length > 8) {
+                    formatted += '-' + value.substring(8, 10);
+                }
             }
             
             e.target.value = formatted;
@@ -53,29 +42,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Функция валидации телефона
+    // Функция валидации телефона (формат: +7 (XXX)-XXX-XX-XX)
     function validatePhone(phone) {
         if (!phone || phone.trim() === '') {
+            if (phoneInput) phoneInput.classList.remove('is-invalid');
             return true; // Телефон не обязателен
         }
         
-        // Удаляем все нецифровые символы
-        const digits = phone.replace(/\D/g, '');
+        // Проверяем формат: +7 (XXX)-XXX-XX-XX
+        const phoneRegex = /^\+7 \(\d{3}\)-\d{3}-\d{2}-\d{2}$/;
         
-        // Проверяем различные форматы:
-        // 1. Российский номер: 7XXXXXXXXXX или 8XXXXXXXXXX (11 цифр)
-        // 2. Международный формат: +7XXXXXXXXXX
-        if (digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
+        if (phoneRegex.test(phone)) {
+            if (phoneInput) phoneInput.classList.remove('is-invalid');
             return true;
+        } else {
+            if (phoneInput) phoneInput.classList.add('is-invalid');
+            return false;
         }
-        
-        if (digits.length === 10 && phone.startsWith('+7')) {
-            return true;
-        }
-        
-        // Если номер не пустой и не соответствует форматам, показываем ошибку
-        phoneInput.classList.add('is-invalid');
-        return false;
     }
     
     // Валидация формы
