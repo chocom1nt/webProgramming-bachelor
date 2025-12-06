@@ -73,9 +73,9 @@ INSERT INTO students (first_name, last_name, email, phone) VALUES
 ('Елена', 'Попова', 'e.popova@university.ru', '+79165557788');
 
 INSERT INTO courses (title, image_url, image_alt, teacher_id, program, price) VALUES
-('Введение в Web-программирование', '/images/web-basic.jpg', 'Курс по основам веб-разработки', 1, 'HTML, CSS, JavaScript, PHP, базы данных', 25000.00),
-('Продвинутый PHP и фреймворки', '/images/php-advanced.jpg', 'Курс по продвинутому PHP', 2, 'ООП, паттерны проектирования, Laravel, тестирование', 45000.00),
-('Базы данных и SQL', '/images/database.jpg', 'Курс по базам данных', 3, 'Проектирование БД, SQL, оптимизация запросов', 30000.00);
+('Введение в Web-программирование', '/include/img/web-basic.jpg', 'Курс по основам веб-разработки', 1, 'HTML, CSS, JavaScript, PHP, базы данных', 25000.00),
+('Продвинутый PHP и фреймворки', '/include/img/php-advanced.jpg', 'Курс по продвинутому PHP', 2, 'ООП, паттерны проектирования, Laravel, тестирование', 45000.00),
+('Базы данных и SQL', '/include/img/database.jpg', 'Курс по базам данных', 3, 'Проектирование БД, SQL, оптимизация запросов', 30000.00);
 
 INSERT INTO payments (student_id, course_id, amount, payment_date, status) VALUES
 (1, 1, 25000.00, '2024-01-15', 'completed'),

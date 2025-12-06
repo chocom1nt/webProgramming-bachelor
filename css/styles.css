@@ -470,7 +470,7 @@ body {
 
 /* Исправляем пути к изображениям в CSS */
 .table img {
-    background: url('include/img/ImageNotFound.png') no-repeat center #f8f9fa;
+    background: url('<?= BASE_PATH ?>include/img/ImageNotFound.png') no-repeat center #f8f9fa;
     background-size: contain;
 }
 

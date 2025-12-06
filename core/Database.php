@@ -4,7 +4,7 @@ class Database
     private static $instance = null;
     private $conn;
 
-    private $host = 'db'; // для Docker
+    private $host = 'db'; 
     private $db_name = 'courses_db';
     private $username = 'user';
     private $password = 'password';
