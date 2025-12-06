@@ -9,7 +9,6 @@ class TeacherTable {
         $this->conn = Database::getInstance();
     }
     
-    // CREATE
     public function create($first_name, $last_name, $email, $teacher_type_id) {
         $sql = "INSERT INTO {$this->table} (first_name, last_name, email, teacher_type_id) 
                 VALUES (:first_name, :last_name, :email, :teacher_type_id)";
@@ -22,17 +21,31 @@ class TeacherTable {
         ]);
     }
     
-    // READ (all with join)
-    public function getAll() {
+    public function getAll($sort = 'id', $order = 'asc') {
+        $allowedSorts = ['id', 'first_name', 'last_name', 'email', 'type_name'];
+        $allowedOrders = ['asc', 'desc'];
+        
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'id';
+        }
+        if (!in_array($order, $allowedOrders)) {
+            $order = 'asc';
+        }
+        
         $sql = "SELECT t.*, tt.type_name 
                 FROM {$this->table} t 
-                LEFT JOIN teacher_types tt ON t.teacher_type_id = tt.id 
-                ORDER BY t.last_name, t.first_name";
+                LEFT JOIN teacher_types tt ON t.teacher_type_id = tt.id";
+        
+        if ($sort == 'type_name') {
+            $sql .= " ORDER BY tt.type_name $order";
+        } else {
+            $sql .= " ORDER BY t.$sort $order";
+        }
+        
         $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    // READ (one)
     public function getById($id) {
         $sql = "SELECT t.*, tt.type_name 
                 FROM {$this->table} t 
@@ -43,7 +56,6 @@ class TeacherTable {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    // UPDATE
     public function update($id, $first_name, $last_name, $email, $teacher_type_id) {
         $sql = "UPDATE {$this->table} 
                 SET first_name = :first_name, last_name = :last_name, 
@@ -59,14 +71,12 @@ class TeacherTable {
         ]);
     }
     
-    // DELETE
     public function delete($id) {
         $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }
     
-    // Получить преподавателей для выпадающего списка
     public function getForDropdown() {
         $sql = "SELECT id, CONCAT(first_name, ' ', last_name) as full_name 
                 FROM {$this->table} 
@@ -75,3 +85,4 @@ class TeacherTable {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+?>

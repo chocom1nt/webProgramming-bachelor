@@ -29,7 +29,7 @@ CREATE TABLE students (
 CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
-    image_url VARCHAR(500),
+    image_url TEXT, 
     image_alt VARCHAR(200),
     teacher_id INTEGER REFERENCES teachers(id) ON DELETE SET NULL,
     program TEXT,
@@ -37,6 +37,7 @@ CREATE TABLE courses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE
 );
+
 
 -- Создание таблицы платежей
 CREATE TABLE payments (

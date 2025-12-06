@@ -9,7 +9,6 @@ class PaymentTable {
         $this->conn = Database::getInstance();
     }
     
-    // CREATE
     public function create($student_id, $course_id, $amount, $payment_date, $status = 'pending') {
         $sql = "INSERT INTO {$this->table} (student_id, course_id, amount, payment_date, status) 
                 VALUES (:student_id, :course_id, :amount, :payment_date, :status)";
@@ -23,21 +22,35 @@ class PaymentTable {
         ]);
     }
     
-    // READ (all with joins)
-    public function getAll() {
+    public function getAll($sort = 'id', $order = 'asc') {
+        $allowedSorts = ['id', 'amount', 'payment_date', 'status', 'student_name', 'course_title'];
+        $allowedOrders = ['asc', 'desc'];
+        
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'id';
+        }
+        if (!in_array($order, $allowedOrders)) {
+            $order = 'asc';
+        }
+        
         $sql = "SELECT p.*, 
                        CONCAT(s.first_name, ' ', s.last_name) as student_name,
                        c.title as course_title,
                        c.price as course_price
                 FROM {$this->table} p
                 LEFT JOIN students s ON p.student_id = s.id
-                LEFT JOIN courses c ON p.course_id = c.id
-                ORDER BY p.payment_date DESC";
+                LEFT JOIN courses c ON p.course_id = c.id";
+        
+        if (in_array($sort, ['student_name', 'course_title'])) {
+            $sql .= " ORDER BY $sort $order";
+        } else {
+            $sql .= " ORDER BY p.$sort $order";
+        }
+        
         $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    // READ (one)
     public function getById($id) {
         $sql = "SELECT p.*, 
                        CONCAT(s.first_name, ' ', s.last_name) as student_name,
@@ -53,7 +66,6 @@ class PaymentTable {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    // UPDATE
     public function update($id, $student_id, $course_id, $amount, $payment_date, $status) {
         $sql = "UPDATE {$this->table} 
                 SET student_id = :student_id, course_id = :course_id, 
@@ -70,14 +82,12 @@ class PaymentTable {
         ]);
     }
     
-    // DELETE
     public function delete($id) {
         $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }
     
-    // Получить платежи по студенту
     public function getByStudent($student_id) {
         $sql = "SELECT p.*, c.title as course_title
                 FROM {$this->table} p
@@ -89,3 +99,4 @@ class PaymentTable {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+?>

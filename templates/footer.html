@@ -2,7 +2,11 @@
     
     <footer class="footer mt-5 py-3 bg-light">
         <div class="container text-center">
-            <span class="text-muted">Система управления курсами &copy; 2024</span>
+            <span class="text-muted">Система управления курсами &copy; 2024 | 
+                <?php if (isset($_SESSION['username'])): ?>
+                    Вы вошли как: <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>
+                <?php endif; ?>
+            </span>
         </div>
     </footer>
 

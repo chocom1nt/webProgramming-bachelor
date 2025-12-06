@@ -9,30 +9,47 @@ class CourseTable {
         $this->conn = Database::getInstance();
     }
     
-    public function create($title, $image_url, $image_alt, $teacher_id, $program, $price, $is_active = 1) {
+    public function create($title, $image_url, $image_alt, $teacher_id, $program, $price, $is_active = true) {
         $sql = "INSERT INTO {$this->table} (title, image_url, image_alt, teacher_id, program, price, is_active) 
                 VALUES (:title, :image_url, :image_alt, :teacher_id, :program, :price, :is_active)";
         $stmt = $this->conn->prepare($sql);
         
-        return $stmt->execute([
-            ':title' => $title,
-            ':image_url' => $image_url,
-            ':image_alt' => $image_alt,
-            ':teacher_id' => $teacher_id,
-            ':program' => $program,
-            ':price' => $price,
-            ':is_active' => $is_active
-        ]);
+        // Используем PDO::PARAM_BOOL для boolean значения
+        $stmt->bindValue(':title', $title);
+        $stmt->bindValue(':image_url', $image_url);
+        $stmt->bindValue(':image_alt', $image_alt);
+        $stmt->bindValue(':teacher_id', $teacher_id, PDO::PARAM_INT);
+        $stmt->bindValue(':program', $program);
+        $stmt->bindValue(':price', $price);
+        $stmt->bindValue(':is_active', $is_active, PDO::PARAM_BOOL);
+        
+        return $stmt->execute();
     }
     
-    public function getAll() {
+    public function getAll($sort = 'id', $order = 'asc') {
+        $allowedSorts = ['id', 'title', 'price', 'is_active', 'teacher_name', 'teacher_type'];
+        $allowedOrders = ['asc', 'desc'];
+        
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'id';
+        }
+        if (!in_array($order, $allowedOrders)) {
+            $order = 'asc';
+        }
+        
         $sql = "SELECT c.*, 
                        CONCAT(t.first_name, ' ', t.last_name) as teacher_name,
                        tt.type_name as teacher_type
                 FROM {$this->table} c
                 LEFT JOIN teachers t ON c.teacher_id = t.id
-                LEFT JOIN teacher_types tt ON t.teacher_type_id = tt.id
-                ORDER BY c.created_at DESC";
+                LEFT JOIN teacher_types tt ON t.teacher_type_id = tt.id";
+        
+        if (in_array($sort, ['teacher_name', 'teacher_type'])) {
+            $sql .= " ORDER BY $sort $order";
+        } else {
+            $sql .= " ORDER BY c.$sort $order";
+        }
+        
         $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -59,16 +76,16 @@ class CourseTable {
                 WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         
-        return $stmt->execute([
-            ':id' => $id,
-            ':title' => $title,
-            ':image_url' => $image_url,
-            ':image_alt' => $image_alt,
-            ':teacher_id' => $teacher_id,
-            ':program' => $program,
-            ':price' => $price,
-            ':is_active' => $is_active
-        ]);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':title', $title);
+        $stmt->bindValue(':image_url', $image_url);
+        $stmt->bindValue(':image_alt', $image_alt);
+        $stmt->bindValue(':teacher_id', $teacher_id, PDO::PARAM_INT);
+        $stmt->bindValue(':program', $program);
+        $stmt->bindValue(':price', $price);
+        $stmt->bindValue(':is_active', $is_active, PDO::PARAM_BOOL);
+        
+        return $stmt->execute();
     }
     
     public function delete($id) {
@@ -78,11 +95,12 @@ class CourseTable {
     }
     
     public function getActiveCourses() {
+        // PostgreSQL требует true/false для boolean полей
         $sql = "SELECT c.*, 
                        CONCAT(t.first_name, ' ', t.last_name) as teacher_name
                 FROM {$this->table} c
                 LEFT JOIN teachers t ON c.teacher_id = t.id
-                WHERE c.is_active = 1
+                WHERE c.is_active = true
                 ORDER BY c.title";
         $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

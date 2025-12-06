@@ -15,6 +15,11 @@ services:
       - ./database.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - courses_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
@@ -23,8 +28,10 @@ services:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - ./sessions:/tmp
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - courses_network
     environment:
@@ -32,6 +39,13 @@ services:
       DATABASE_NAME: courses_db
       DATABASE_USER: user
       DATABASE_PASSWORD: password
+    command: >
+      sh -c "
+      apache2-foreground &
+      sleep 5 &&
+      chmod -R 777 /tmp &&
+      tail -f /dev/null
+      "
 
 volumes:
   postgres_data:
